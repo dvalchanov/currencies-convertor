@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+  </head>
+  <body>
+    <div id="root">
+      <select id="currency-dropdown">
+        <option selected id="usd" value="usd">USD</option>
+        <option id="eur" value="eur">EUR</option>
+        <option id="aud" value="aud">AUD</option>
+        <option id="cad" value="cad">CAD</option>
+        <option id="chf" value="chf">CHF</option>
+        <option id="nzd" value="nzd">NZD</option>
+        <option id="bgn" value="bgn">BGN</option>
+      </select>
+    </div>
+
+    <div id="group-1">
+      <h2>Group 1</h2>
+    </div>
+    <div id="group-2">
+      <h2>Group 2</h2>
+    </div>
+    <div id="group-3">
+      <h2>Group 3</h2>
+    </div>
+  </body>
+  <script>
+    const currencies = ["usd", "eur", "aud", "cad", "chf", "nzd", "bgn"];
+
+    function fetchData(currency) {
+      fetch(
+        `https://cdn.jsdelivr.net/gh/fawazahmed0/currency-api@1/latest/currencies/${currency}.json`
+      ).then((response) => {
+        response.json().then((res) => {
+          currencies
+            .filter((cur) => cur !== currency)
+            .forEach((cur) => {
+              const rate = res[currency][cur];
+              const text = `${currency.toUpperCase()} - ${cur.toUpperCase()}: ${rate}`;
+
+              if (rate < 1) {
+                appendTo("group-1", text);
+              } else if (rate >= 1 && rate < 1.5) {
+                appendTo("group-2", text);
+              } else if (rate >= 1.5) {
+                appendTo("group-3", text);
+              }
+            });
+        });
+      });
+    }
+
+    function appendTo(id, currency) {
+      const paragraph = document.createElement("p");
+      const node = document.createTextNode(currency.toUpperCase());
+      paragraph.appendChild(node);
+      paragraph.classList.add("rate-text");
+
+      document.getElementById(id).appendChild(paragraph);
+    }
+
+    const el = document.getElementById("currency-dropdown");
+
+    el.addEventListener("change", (event) => {
+      document.querySelectorAll(".rate-text").forEach((el) => {
+        el.remove();
+      });
+
+      const currency = event.target.value;
+      fetchData(currency);
+    });
+
+    fetchData(el.value);
+  </script>
+</html>
